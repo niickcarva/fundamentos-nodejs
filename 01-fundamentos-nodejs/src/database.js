@@ -40,7 +40,11 @@ export class Database {
       this.#database[table] = [];
     }
 
-    this.#database[table].push(data);
+    this.#database[table].push({
+      ...data,
+      created_at: new Date(),
+      updated_at: new Date(),
+    });
     this.#persist();
     return data;
   }
@@ -49,7 +53,11 @@ export class Database {
     const rowIndex = this.#database[table].findIndex((row) => row.id === id);
 
     if (rowIndex > -1) {
-      this.#database[table][rowIndex] = { id, ...data };
+      this.#database[table][rowIndex] = {
+        ...this.#database[table][rowIndex],
+        ...data,
+        updated_at: new Date(),
+      };
       this.#persist();
     }
   }
