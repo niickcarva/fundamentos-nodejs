@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { Database } from "./database.js";
 import { buildRoutePath } from "./utils/build-route-path.js";
+import { readCsvFile } from "./utils/read-csv-file.js";
 
 // stateless
 const database = new Database();
@@ -105,7 +106,7 @@ export const routes = [
     method: "POST",
     path: buildRoutePath("/tasks"),
     handler: (req, res) => {
-      const { title, description } = req.body;
+      const { title, description } = req.body || {};
 
       if (!title) {
         return res.writeHead(400).end(
@@ -201,4 +202,16 @@ export const routes = [
     },
   },
   // -- TASKS --
+
+  // -- CSV --
+  {
+    method: "POST",
+    path: buildRoutePath("/import-csv/:entity"),
+    handler: (req, res) => {
+      const { entity } = req.params;
+      readCsvFile(entity);
+      return res.writeHead(204).end();
+    },
+  },
+  // -- CSV --
 ];
