@@ -19,7 +19,7 @@ export class Database {
     fs.writeFile(databasePath, JSON.stringify(this.#database));
   }
 
-  select(table, search) {
+  select(table, search, limit = 10, page = 1) {
     let data = this.#database[table] || [];
 
     if (search) {
@@ -30,7 +30,7 @@ export class Database {
       });
     }
 
-    return data;
+    return data.slice((page - 1) * limit, page * limit);
   }
 
   insert(table, data) {

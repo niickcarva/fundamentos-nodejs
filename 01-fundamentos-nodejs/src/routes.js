@@ -10,7 +10,7 @@ export const routes = [
     method: "GET",
     path: buildRoutePath("/users"),
     handler: (req, res) => {
-      const { search } = req.query;
+      const { search, limit, page } = req.query;
       const users = database.select(
         "users",
         search
@@ -18,7 +18,9 @@ export const routes = [
               name: search,
               email: search,
             }
-          : null
+          : null,
+        limit,
+        page
       );
 
       return res.end(JSON.stringify(users));
@@ -29,6 +31,21 @@ export const routes = [
     path: buildRoutePath("/users"),
     handler: (req, res) => {
       const { name, email } = req.body;
+
+      if (!name || !email) {
+        return res.writeHead(400).end(
+          JSON.stringify({
+            message: "Name and email are required",
+          })
+        );
+      } else if (database.select("users", { email }, 1).length) {
+        return res.writeHead(400).end(
+          JSON.stringify({
+            message: "User already exists",
+          })
+        );
+      }
+
       const user = {
         id: randomUUID(),
         name,
@@ -37,7 +54,7 @@ export const routes = [
 
       database.insert("users", user);
 
-      return res.writeHead(201).end();
+      return res.writeHead(201).end(JSON.stringify(user));
     },
   },
   {
